@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>✨ Surprise pour Lilie ✨</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family: 'Segoe UI', sans-serif; overflow:hidden; background:#111; display:flex; justify-content:center; align-items:center; }
+
+.screen { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; flex-direction:column; transition: opacity 0.5s; }
+.hidden { display:none; opacity:0; }
+
+.button { padding:20px 50px; font-size:1.5em; background: linear-gradient(135deg, #ff6b9d 0%, #feca57 100%); color:white; border:none; border-radius:50px; cursor:pointer; font-weight:bold; box-shadow:0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; }
+.button:hover { transform: scale(1.1); }
+
+h1 { font-size:3em; margin-bottom:20px; text-align:center; text-shadow:0 0 20px rgba(255,255,255,0.8); }
+.subtitle { font-size:1.5em; text-align:center; text-shadow:0 0 15px rgba(255,255,255,0.8); }
+
+#canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+
+#messageScreen p { font-size:1.5em; max-width:800px; text-align:center; line-height:1.6; color:gold; text-shadow:0 0 15px #fff; }
+.letter { font-size:2em; padding:20px; background:white; border-radius:20px; box-shadow:0 0 30px rgba(0,0,0,0.5); cursor:pointer; }
+</style>
+</head>
+<body>
+
+<!-- Écran 1 : Commencer discret -->
+<div class="screen" id="startScreen">
+    <h1>Appuyez pour continuer</h1>
+    <button class="button" onclick="nextStep()">Continuer</button>
+</div>
+
+<!-- Étapes intermédiaires : décor magique -->
+<div class="screen hidden" id="step1">
+    <h1>✨ Magie ✨</h1>
+    <p class="subtitle">Continue…</p>
+    <button class="button" onclick="nextStep()">Continuer</button>
+</div>
+
+<div class="screen hidden" id="step2">
+    <h1>🌸 Fleurs et Nounours 🌸</h1>
+    <p class="subtitle">Regarde autour de toi…</p>
+    <button class="button" onclick="nextStep()">Continuer</button>
+</div>
+
+<div class="screen hidden" id="step3">
+    <h1>🎆 Feux d'artifice 🎆</h1>
+    <p class="subtitle">Presque là…</p>
+    <button class="button" onclick="nextStep()">Continuer</button>
+</div>
+
+<!-- Destination finale -->
+<div class="screen hidden" id="destination">
+    <h1>En fin tu es arrivé à destination…</h1>
+    <p class="subtitle">Appuyez sur Entrer</p>
+    <button class="button" onclick="enterParadise()">Entrer</button>
+</div>
+
+<!-- Écran paradis blanc -->
+<div class="screen hidden" id="paradise">
+    <canvas id="fireCanvas"></canvas>
+    <h1 style="color:#fff; text-shadow:0 0 20px #fff;">✨ Bienvenue ✨</h1>
+    <div class="letter" onclick="showMessage()">📜 Lis-moi 📜</div>
+</div>
+
+<!-- Message final -->
+<div class="screen hidden" id="messageScreen">
+    <p id="finalMessage"></p>
+</div>
+
+<script>
+// Gestion des étapes
+let currentStep = 0;
+const steps = ['startScreen','step1','step2','step3','destination'];
+
+function nextStep(){
+    document.getElementById(steps[currentStep]).classList.add('hidden');
+    currentStep++;
+    document.getElementById(steps[currentStep]).classList.remove('hidden');
+}
+
+// Animation paradis
+function enterParadise(){
+    document.getElementById('destination').classList.add('hidden');
+    document.getElementById('paradise').classList.remove('hidden');
+    startFireworks();
+}
+
+// Animation feu d'artifice
+const canvas = document.getElementById('fireCanvas');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+const particles = [];
+const colors = ['#ff6b9d','#feca57','#48dbfb','#ff9ff3','#54a0ff','#1dd1a1'];
+
+class Particle {
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random()-0.5)*6;
+        this.vy = Math.random()*6-3;
+        this.size = Math.random()*5+2;
+        this.life = 100;
+        this.color = colors[Math.floor(Math.random()*colors.length)];
+    }
+    update(){
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.05;
+        this.life--;
+    }
+    draw(){
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = Math.max(this.life/100,0);
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+
+function startFireworks(){
+    function animate(){
+        ctx.clearRect(0,0,width,height);
+        if(Math.random()<0.1){
+            particles.push(new Particle(Math.random()*width, Math.random()*height/2));
+        }
+        for(let i=particles.length-1;i>=0;i--){
+            particles[i].update();
+            particles[i].draw();
+            if(particles[i].life<=0) particles.splice(i,1);
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+// Message final animé
+const finalText = `
+✨ Lilie ✨\n
+Aujourd’hui est un jour spécial, un jour pour célébrer la force, la beauté et le courage de toutes les femmes dans le monde.\n
+Lilie, en cette Journée internationale des femmes, je veux te rappeler à quel point tu es une personne précieuse et exceptionnelle.\n
+Ta gentillesse, ta détermination et ta lumière inspirent ceux qui ont la chance de te connaître.\n
+Que cette journée te rappelle ta valeur, ta force et tout le potentiel incroyable qui vit en toi.\n
+Continue d’avancer avec confiance, de poursuivre tes rêves et de briller comme tu sais si bien le faire.\n
+Que la joie, la paix et le succès t’accompagnent aujourd’hui et tous les jours de ta vie.\n
+Joyeuse Journée internationale des femmes, Lilie 🌸✨
+`;
+
+function showMessage(){
+    document.getElementById('paradise').classList.add('hidden');
+    const messageScreen = document.getElementById('messageScreen');
+    messageScreen.classList.remove('hidden');
+
+    const display = document.getElementById('finalMessage');
+    display.innerHTML = '';
+    let i = 0;
+    function typeWriter(){
+        if(i < finalText.length){
+            const char = finalText.charAt(i);
+            display.innerHTML += char === '\n' ? '<br>' : char;
+            i++;
+            setTimeout(typeWriter, 40);
+        }
+    }
+    typeWriter();
+}
+
+// Resize canvas
+window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
